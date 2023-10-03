@@ -9,7 +9,7 @@ soup = BeautifulSoup(page.text, "html.parser")
 # selecting the right data to be exctracted(ALl Worlds CHampionship Season)
 all_season = soup.find_all("div", class_ = "hlist")[2].ul.find_all("li")
 seasons_url = []
-champion_data = []
+
 
 # Extracting all the links to all Worlds Championsip data links
 for season in all_season:
@@ -19,6 +19,7 @@ for season in all_season:
 
 for url in seasons_url:
     page = requests.get("https://lol.fandom.com" + f"{url}" + "/Champion_Statistics")
+    champion_data = []
     if page.status_code == 200:
         soup = BeautifulSoup(page.text, "html.parser")
         table = soup.find("table", class_="wikitable")
@@ -44,19 +45,22 @@ for url in seasons_url:
                 my_list.append(x.text.strip())
             champion_data.append(my_list)
 
+
+        filename = url.split("/")[2].split("_")[:2]
+        filename = "_".join(filename)
+        df = pd.DataFrame(champion_data, columns=champ_columns)
+        df.to_csv(f"{filename}" + "_Champion_Stats.csv")
+
     else:
         print(f"can't access {url} page")
-
-
-    filename = url.split("/")[2].split("_")[:2]
-    filename = "_".join(filename)
-    df = pd.DataFrame(champion_data, columns=champ_columns)
-    df.to_csv(f"{filename}"+"_Champion_Stats.csv")
+        continue
 
 
 
 
-print(df.head(10))
+
+
+
 
 
 
